@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>呼吸 · 每天留下一个存在证明</title>
+<meta name="description" content="呼吸：一天一张照片，一句话。记录到 100 岁。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111'/%3E%3Ctext x='50' y='72' font-size='62' text-anchor='middle' fill='%23fff' font-family='serif'%3E%E5%91%BC%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#fbfaf7;--ink:#1a1a18;--sub:#77756e;--line:#e6e3dc;--accent:#5b7a5b}
+@media (prefers-color-scheme:dark){:root{--bg:#131312;--ink:#e6e4df;--sub:#8f8d85;
+--line:#2a2a26;--accent:#8fae8f}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+background:var(--bg);color:var(--ink);text-align:center;
+font:16px/2 "Source Han Serif SC","Noto Serif SC","Songti SC",STSong,SimSun,Georgia,serif}
+.box{padding:2rem;max-width:30rem}
+h1{font-size:2.4rem;letter-spacing:.3em;margin:0 0 .6rem;font-weight:400}
+.sub{color:var(--sub);font-size:.95rem;letter-spacing:.08em;margin:0 0 2.4rem}
+.line{width:2.4rem;height:1px;background:var(--line);margin:2.4rem auto}
+.note{color:var(--sub);font-size:.85rem;line-height:2.1;font-family:system-ui,sans-serif}
+a{color:var(--accent);text-decoration:none;font-family:system-ui,sans-serif;font-size:.85rem;
+letter-spacing:.05em;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--accent)}
+.breath{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);
+animation:b 4s ease-in-out infinite;vertical-align:middle;margin-right:.5em}
+@keyframes b{0%,100%{opacity:.25}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>呼吸</h1>
+  <p class="sub">每天留下一个存在证明</p>
+
+  <p class="note"><span class="breath"></span>一天一张照片，一句话。<br>
+  记录到一百岁生日那天。</p>
+
+  <div class="line"></div>
+
+  <p class="note">
+    已经数到 <b>第 0 天</b>。<br>
+    还没开始——因为还没决定第一张照片拍什么。
+  </p>
+
+  <div class="line"></div>
+
+  <p class="note"><a href="/">← 回到主页</a></p>
+</div>
+</body>
+</html>
