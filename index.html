@@ -26,6 +26,7 @@ h1{font-size:1.9rem;margin:.2rem 0 .5rem;letter-spacing:.04em}
 h2{font-size:.85rem;font-family:system-ui,sans-serif;letter-spacing:.18em;
 color:var(--sub);margin:2.6rem 0 1rem;border-bottom:1px solid var(--line);padding-bottom:.5rem}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.grid.single{grid-template-columns:1fr}
 @media(max-width:560px){.grid{grid-template-columns:1fr}}
 a.item{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
 border-radius:12px;padding:1.05rem 1.15rem;transition:border-color .15s}
@@ -58,16 +59,11 @@ footer a{color:var(--sub)}
 </header>
 
 <h2>在做的产品</h2>
-<div class="grid">
+<div class="grid single">
   <a class="item" href="https://softslow.cloud/">
     <div class="t"><i class="ico">🐈</i>卷腹猫</div>
     <div class="d">AI 健康打卡 Agent：每日打卡、体重趋势、圈子排行榜，LLM 复盘你的坚持。</div>
     <div class="u">softslow.cloud</div>
-  </a>
-  <a class="item pending" href="#" onclick="return false" title="链接待补">
-    <div class="t"><i class="ico">🔊</i>AI 喇叭</div>
-    <div class="d">产品介绍占位——一句话介绍它做什么。</div>
-    <div class="u">链接待补</div>
   </a>
 </div>
 
