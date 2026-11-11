@@ -22,7 +22,15 @@ font:16px/2 "Source Han Serif SC","Noto Serif SC","Songti SC",STSong,SimSun,Geor
 .head{text-align:center;margin-bottom:2.6rem}
 h1{font-size:2.2rem;letter-spacing:.3em;margin:0 0 .4rem;font-weight:400}
 .sub{color:var(--sub);font-size:.9rem;letter-spacing:.08em;margin:0}
-.counter{text-align:center;margin:0 0 3rem}
+.counter{text-align:center;margin:0 0 2.2rem}
+.heatwrap{display:flex;justify-content:center;margin:0 0 1rem}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,11px);gap:3px}
+.heat i{width:11px;height:11px;border-radius:2.5px;background:var(--line);opacity:.45;display:block}
+.heat i.on{background:var(--accent);opacity:1}
+.heat i.today{box-shadow:0 0 0 1.5px var(--accent)}
+.heat i.future{opacity:0}
+.heatlegend{text-align:center;color:var(--sub);font-size:.72rem;font-family:system-ui,sans-serif;
+letter-spacing:.08em;margin:0 0 2.6rem}
 .day{font-size:3.2rem;font-weight:700;letter-spacing:.04em;line-height:1.2}
 .day small{font-size:1rem;color:var(--sub);font-weight:400;letter-spacing:.1em}
 .meta{color:var(--sub);font-size:.82rem;font-family:system-ui,sans-serif;letter-spacing:.06em}
@@ -55,6 +63,9 @@ a:hover{color:var(--accent);border-bottom-color:var(--accent)}
     <div class="day" id="daynum"><small>…</small></div>
     <div class="meta" id="daymeta"><span class="breathdot"></span>读取中</div>
   </div>
+
+  <div id="heatmap" class="heatwrap"></div>
+  <div class="heatlegend" id="heatlegend">过去 9 周</div>
 
   <div id="timeline"></div>
 
@@ -124,6 +135,27 @@ a:hover{color:var(--accent);border-bottom-color:var(--accent)}
         }).join('');
     }).join('');
     el.tl.innerHTML = html;
+
+    // 日历热力图：近 9 周
+    var have = {}; entries.forEach(function(e){ have[e.date] = true; });
+    var today = new Date(); today.setHours(0,0,0,0);
+    var dow = (today.getDay() + 6) % 7;                 // 周一=0
+    var start = new Date(today);
+    start.setDate(start.getDate() - (dow + 56));        // 8 个完整周前的周一
+    var grid = "", days = 63 + dow;
+    for (var i = 0; i < days; i++) {
+      var d = new Date(start);
+      d.setDate(start.getDate() + i);
+      var p = function(n){ return (n<10?'0':'')+n; };
+      var key = d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+      var cls = key === localKey(today) ? 'today' : (d > today ? 'future' : '');
+      if (have[key]) cls += ' on';
+      var mark = have[key] ? ' ✓' : '';
+      grid += '<i class="' + cls.trim() + '" title="' + key + mark + '"></i>';
+    }
+    document.getElementById('heatmap').innerHTML = '<div class="heat">' + grid + '</div>';
+    document.getElementById('heatlegend').innerHTML =
+      '过去 9 周 · 已记录 ' + Object.keys(have).length + ' 天';
   }
 
   fetch('entries.json?v=' + Date.now())
