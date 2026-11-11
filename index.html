@@ -44,6 +44,18 @@ hr{border:0;border-top:1px solid var(--line);margin:.8em 0}
 #chips button{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--ink);
   border-radius:14px;padding:.32em .85em;font:inherit;font-size:.78rem;cursor:pointer}
 #chips button:hover{border-color:var(--green);color:var(--green)}
+#palette{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:50;
+  align-items:flex-start;justify-content:center;padding-top:14vh}
+#palette.on{display:flex}
+#palette .panel{width:min(30rem,92vw);background:var(--card);border:1px solid var(--line);
+  border-radius:12px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.4)}
+#palette input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);
+  font:inherit;padding:.85rem 1rem;border-bottom:1px solid var(--line)}
+#palette .opts{max-height:46vh;overflow-y:auto}
+#palette .opt{padding:.55rem 1rem;font-size:.88rem;cursor:pointer;display:flex;gap:.8em;justify-content:space-between}
+#palette .opt.sel{background:var(--quote-bg)}
+#palette .opt .d{color:var(--dim);font-size:.76rem;text-align:right}
+#palette .hint{padding:.5rem 1rem;color:var(--dim);font-size:.72rem;border-top:1px solid var(--line)}
 @media(max-width:640px){body{font-size:13px} #out .banner{font-size:.68rem}}
 *{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 ::-webkit-scrollbar{width:7px;height:7px}
@@ -62,6 +74,11 @@ noscript div{padding:2rem}
   <input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="命令输入">
 </div>
 <div id="chips"></div>
+<div id="palette"><div class="panel">
+  <input id="palq" placeholder="输入命令过滤…" autocomplete="off">
+  <div class="opts" id="palopts"></div>
+  <div class="hint">↑↓ 选择 · Enter 执行 · Esc 关闭</div>
+</div></div>
 <noscript><div>需要 JavaScript 才能进入终端。<br>
 手动导航：<a href="/coach">卷腹猫</a> · <a href="/technews/">科技情报（11 篇文章）</a> · <a href="/photos/dongdong/">冬冬的镜头</a> · <a href="/breath/">呼吸</a></div></noscript>
 
@@ -562,6 +579,54 @@ async function boot(){
   $cmd.focus();
 }
 boot();
+
+/* ============ Ctrl+K 命令调色板 ============ */
+var $pal = document.getElementById("palette");
+var $palq = document.getElementById("palq");
+var $palopts = document.getElementById("palopts");
+var palSel = 0, palHits = [];
+
+function palRender(){
+  var q = $palq.value.toLowerCase();
+  palHits = CMD_NAMES.filter(function(n){
+    return !q || n.indexOf(q) === 0 || (CMDS[n].d || "").toLowerCase().indexOf(q) >= 0;
+  });
+  palSel = Math.min(palSel, Math.max(0, palHits.length - 1));
+  $palopts.innerHTML = palHits.map(function(n, i){
+    return '<div class="opt' + (i === palSel ? " sel" : "") + '" data-cmd="' + esc(n) + '">'
+      + '<span class="k">' + esc(n) + '</span><span class="d">' + esc(CMDS[n].d || "") + '</span></div>';
+  }).join("") || '<div class="opt"><span class="dim">没有匹配的命令</span></div>';
+  var sel = $palopts.querySelector(".sel");
+  if(sel) sel.scrollIntoView({ block: "nearest" });
+}
+function palOpen(){
+  $pal.classList.add("on");
+  $palq.value = ""; palSel = 0; palRender();
+  setTimeout(function(){ $palq.focus(); }, 30);
+}
+function palClose(){ $pal.classList.remove("on"); $cmd.focus(); }
+$pal.addEventListener("click", function(e){ if(e.target === $pal) palClose(); });
+$palq.addEventListener("input", function(){ palSel = 0; palRender(); });
+$palq.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){ palClose(); }
+  else if(e.key === "ArrowDown"){ e.preventDefault(); palSel = Math.min(palSel+1, palHits.length-1); palRender(); }
+  else if(e.key === "ArrowUp"){ e.preventDefault(); palSel = Math.max(palSel-1, 0); palRender(); }
+  else if(e.key === "Enter"){
+    e.preventDefault();
+    var c = palHits[palSel];
+    if(c){ palClose(); run(c); }
+  }
+});
+$palopts.addEventListener("click", function(e){
+  var opt = e.target.closest(".opt");
+  if(opt && opt.dataset.cmd){ palClose(); run(opt.dataset.cmd); }
+});
+document.addEventListener("keydown", function(e){
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    $pal.classList.contains("on") ? palClose() : palOpen();
+  }
+});
 
 /* ============ Konami 彩蛋 ============ */
 var KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
