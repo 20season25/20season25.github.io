@@ -83,11 +83,15 @@ a:hover{color:var(--accent);border-bottom-color:var(--accent)}
     // 连续天数：从最近一条往前数
     var streak = 0, cur = new Date(now);
     var byDate = {}; entries.forEach(function(e){ byDate[e.date] = true; });
+    function localKey(d){
+      var p = function(n){ return (n<10?'0':'')+n; };
+      return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+    }
     var gapAllowed = true;
     while(true){
-      var key = cur.toISOString().slice(0,10);
+      var key = localKey(cur);
       if(byDate[key]){ streak++; cur.setDate(cur.getDate()-1); }
-      else if(cur.toISOString().slice(0,10) < d.start) break;
+      else if(localKey(cur) < d.start) break;
       else if(gapAllowed){ gapAllowed = false; cur.setDate(cur.getDate()-1); } // 今天没写不算断
       else break;
     }
