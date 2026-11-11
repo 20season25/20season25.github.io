@@ -7,44 +7,114 @@
 <meta name="description" content="呼吸：一天一张照片，一句话。记录到 100 岁。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111'/%3E%3Ctext x='50' y='72' font-size='62' text-anchor='middle' fill='%23fff' font-family='serif'%3E%E5%91%BC%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#fbfaf7;--ink:#1a1a18;--sub:#77756e;--line:#e6e3dc;--accent:#5b7a5b}
+:root{--bg:#fbfaf7;--ink:#1f1e1a;--sub:#77756e;--line:#e6e3dc;--accent:#5b7a5b;--card:#fff}
 @media (prefers-color-scheme:dark){:root{--bg:#131312;--ink:#e6e4df;--sub:#8f8d85;
---line:#2a2a26;--accent:#8fae8f}}
+--line:#2a2a26;--accent:#8fae8f;--card:#1b1b19}}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-background:var(--bg);color:var(--ink);text-align:center;
+body{margin:0;background:var(--bg);color:var(--ink);
 font:16px/2 "Source Han Serif SC","Noto Serif SC","Songti SC",STSong,SimSun,Georgia,serif}
-.box{padding:2rem;max-width:30rem}
-h1{font-size:2.4rem;letter-spacing:.3em;margin:0 0 .6rem;font-weight:400}
-.sub{color:var(--sub);font-size:.95rem;letter-spacing:.08em;margin:0 0 2.4rem}
-.line{width:2.4rem;height:1px;background:var(--line);margin:2.4rem auto}
-.note{color:var(--sub);font-size:.85rem;line-height:2.1;font-family:system-ui,sans-serif}
-a{color:var(--accent);text-decoration:none;font-family:system-ui,sans-serif;font-size:.85rem;
-letter-spacing:.05em;border-bottom:1px solid transparent}
-a:hover{border-bottom-color:var(--accent)}
-.breath{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);
-animation:b 4s ease-in-out infinite;vertical-align:middle;margin-right:.5em}
+.wrap{max-width:34rem;margin:0 auto;padding:3rem 1.25rem 4rem}
+.head{text-align:center;margin-bottom:2.6rem}
+h1{font-size:2.2rem;letter-spacing:.3em;margin:0 0 .4rem;font-weight:400}
+.sub{color:var(--sub);font-size:.9rem;letter-spacing:.08em;margin:0}
+.counter{text-align:center;margin:0 0 3rem}
+.day{font-size:3.2rem;font-weight:700;letter-spacing:.04em;line-height:1.2}
+.day small{font-size:1rem;color:var(--sub);font-weight:400;letter-spacing:.1em}
+.meta{color:var(--sub);font-size:.82rem;font-family:system-ui,sans-serif;letter-spacing:.06em}
+.breathdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);
+animation:b 4s ease-in-out infinite;margin-right:.45em;vertical-align:1px}
 @keyframes b{0%,100%{opacity:.25}50%{opacity:1}}
+.entry{margin:0 0 2.6rem}
+.entry .date{color:var(--sub);font-size:.8rem;font-family:system-ui,sans-serif;letter-spacing:.08em;
+display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);
+padding-bottom:.3rem;margin-bottom:.6rem}
+.entry .text{white-space:pre-wrap;word-break:break-word}
+.entry img{display:block;max-width:100%;border-radius:10px;margin:0 0 .7rem}
+.entry .body{text-align:left}
+.empty{text-align:center;color:var(--sub);padding:2.5rem 0;border:1px dashed var(--line);border-radius:12px;
+font-size:.92rem;line-height:2.2}
+.back{text-align:center;margin-top:3rem}
+a{color:var(--sub);text-decoration:none;font-family:system-ui,sans-serif;font-size:.82rem;
+letter-spacing:.05em;border-bottom:1px solid transparent}
+a:hover{color:var(--accent);border-bottom-color:var(--accent)}
 </style>
 </head>
 <body>
-<div class="box">
-  <h1>呼吸</h1>
-  <p class="sub">每天留下一个存在证明</p>
+<div class="wrap">
+  <div class="head">
+    <h1>呼 吸</h1>
+    <p class="sub">每天留下一个存在证明 · 记录到一百岁生日</p>
+  </div>
 
-  <p class="note"><span class="breath"></span>一天一张照片，一句话。<br>
-  记录到一百岁生日那天。</p>
+  <div class="counter">
+    <div class="day" id="daynum"><small>…</small></div>
+    <div class="meta" id="daymeta"><span class="breathdot"></span>读取中</div>
+  </div>
 
-  <div class="line"></div>
+  <div id="timeline"></div>
 
-  <p class="note">
-    已经数到 <b>第 0 天</b>。<br>
-    还没开始——因为还没决定第一张照片拍什么。
-  </p>
-
-  <div class="line"></div>
-
-  <p class="note"><a href="/">← 回到主页</a></p>
+  <div class="back"><a href="/">← 回到主页</a></div>
 </div>
+
+<script>
+(function(){
+  var el = {
+    day: document.getElementById('daynum'),
+    meta: document.getElementById('daymeta'),
+    tl: document.getElementById('timeline')
+  };
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  function render(d){
+    var entries = (d.entries||[]).slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    if(!d.start || !entries.length){
+      el.day.innerHTML = '<small>第 0 天</small>';
+      el.meta.innerHTML = '<span class="breathdot"></span>还没开始——因为第一张照片还没拍';
+      el.tl.innerHTML = '<div class="empty">呼吸还没开始。<br>它开始的那天，这里会出现第一条记录：<br>一张照片，一句话。</div>';
+      return;
+    }
+    var start = new Date(d.start + 'T00:00:00+08:00');
+    var now = new Date(); now.setHours(0,0,0,0);
+    var dayN = Math.max(1, Math.round((now - start)/86400000) + 1);
+    el.day.innerHTML = '第 ' + dayN + ' <small>天</small>';
+    el.meta.innerHTML = '<span class="breathdot"></span>自 ' + d.start + ' · 共 ' + entries.length + ' 条记录';
+
+    // 连续天数：从最近一条往前数
+    var streak = 0, cur = new Date(now);
+    var byDate = {}; entries.forEach(function(e){ byDate[e.date] = true; });
+    var gapAllowed = true;
+    while(true){
+      var key = cur.toISOString().slice(0,10);
+      if(byDate[key]){ streak++; cur.setDate(cur.getDate()-1); }
+      else if(cur.toISOString().slice(0,10) < d.start) break;
+      else if(gapAllowed){ gapAllowed = false; cur.setDate(cur.getDate()-1); } // 今天没写不算断
+      else break;
+    }
+    el.meta.innerHTML += ' · 连续 ' + streak + ' 天';
+
+    el.tl.innerHTML = entries.map(function(e){
+      return '<div class="entry"><div class="date"><span>' + esc(e.date) + '</span>'
+        + '<span>' + esc(e.weather || '') + '</span></div>'
+        + '<div class="body">'
+        + (e.photo ? '<img src="photos/' + esc(e.photo) + '" loading="lazy" alt="">' : '')
+        + '<div class="text">' + esc(e.text || '') + '</div>'
+        + '</div></div>';
+    }).join('');
+  }
+
+  fetch('entries.json?v=' + Date.now())
+    .then(function(r){
+      if(!r.ok) throw 0;
+      return r.json();
+    })
+    .then(render)
+    .catch(function(){
+      el.day.innerHTML = '<small>第 0 天</small>';
+      el.meta.innerHTML = '<span class="breathdot"></span>还没开始';
+      el.tl.innerHTML = '<div class="empty">呼吸还没开始。<br>它开始的那天，这里会出现第一条记录。</div>';
+    });
+})();
+</script>
 </body>
 </html>
