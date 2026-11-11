@@ -1,79 +1,433 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Season · 个人主页</title>
-<meta name="description" content="Season 的个人主页：卷腹猫、呼吸、科技情报。">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111'/%3E%3Ctext x='50' y='72' font-size='62' text-anchor='middle' fill='%23fff' font-family='serif'%3ES%3C/text%3E%3C/svg%3E">
+<title>guest@softslow.cloud</title>
+<meta name="description" content="Season 的终端主页：软慢云。输入 help 开始探索。">
+<meta property="og:title" content="softslow.cloud — Season 的终端">
+<meta property="og:description" content="一条命令行，通往卷腹猫、呼吸、科技情报和 11 篇文章。试试 help。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0e'/%3E%3Ctext x='50' y='70' font-size='52' text-anchor='middle' fill='%237ec97e' font-family='monospace'%3E%3E_%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#faf9f6;--ink:#1a1a18;--sub:#6b6a66;--line:#e4e1da;--card:#ffffff;
---accent:#b32d2d;--accent-ink:#8f1f1f;--quote-bg:#f4f2ec}
-@media (prefers-color-scheme:dark){:root{--bg:#141412;--ink:#e8e6e1;--sub:#9a988f;
---line:#2c2b27;--card:#1c1c19;--accent:#e05a4e;--accent-ink:#e8837a;--quote-bg:#1f1e1a}}
+:root{
+  --bg:#0c0c0e; --ink:#d8d6cf; --dim:#6b6a66; --line:#26262a;
+  --green:#7ec97e; --accent:#e05a4e; --card:#151518;
+}
+html[data-theme="light"]{
+  --bg:#faf9f6; --ink:#1a1a18; --dim:#77756e; --line:#e4e1da;
+  --green:#2e7d4f; --accent:#b32d2d; --card:#ffffff;
+}
 *{box-sizing:border-box}
+html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);
-font:16px/1.9 "Source Han Serif SC","Noto Serif SC","Songti SC",STSong,SimSun,Georgia,serif}
-a{color:inherit}
-.wrap{max-width:42rem;margin:0 auto;padding:0 1.25rem}
-header{padding:4.2rem 0 1rem;text-align:center}
-.avatar{width:72px;height:72px;border-radius:50%;background:#111;color:#fff;
-display:inline-flex;align-items:center;justify-content:center;
-font-size:2.1rem;font-family:Georgia,"Songti SC",serif;margin-bottom:1.1rem}
-h1{font-size:1.9rem;margin:.2rem 0 .5rem;letter-spacing:.04em}
-.bio{color:var(--sub);font-size:.98rem;margin:0}
-h2{font-size:.85rem;font-family:system-ui,sans-serif;letter-spacing:.18em;
-color:var(--sub);margin:2.6rem 0 1rem;border-bottom:1px solid var(--line);padding-bottom:.5rem}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:560px){.grid{grid-template-columns:1fr}}
-a.item{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
-border-radius:12px;padding:1.05rem 1.15rem;transition:border-color .15s}
-a.item:hover{border-color:var(--accent)}
-.item .t{font-weight:700;font-size:1.02rem;display:flex;align-items:center;gap:.5em}
-.item .t .ico{font-style:normal;font-size:1.15em}
-.item .d{color:var(--sub);font-size:.86rem;margin-top:.3rem;line-height:1.7}
-.item .u{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--accent);
-margin-top:.5rem;letter-spacing:.05em}
-.item.wide{grid-column:1 / -1}
-footer{margin:3.5rem 0 3rem;text-align:center;color:var(--sub);
-font-family:system-ui,sans-serif;font-size:.8rem}
+  font:14.5px/1.75 ui-monospace,"Cascadia Mono","JetBrains Mono",Consolas,"PingFang SC","Microsoft YaHei",monospace;
+  display:flex;flex-direction:column}
+#term{flex:1;overflow-y:auto;padding:1.1rem 1rem 0;max-width:56rem;width:100%;margin:0 auto;cursor:text}
+#out .cmd{color:var(--dim);margin-top:.9em;white-space:pre-wrap;word-break:break-all}
+#out .cmd .p{color:var(--green)}
+#out .out{white-space:pre-wrap;word-break:break-word}
+#out .dim{color:var(--dim)}
+#out .err{color:var(--accent)}
+#out .ok{color:var(--green)}
+#out a{color:var(--green);text-decoration:none;border-bottom:1px dashed var(--green)}
+#out a:hover{border-bottom-style:solid}
+#out .banner{color:var(--green);line-height:1.32;font-size:.92rem;white-space:pre;overflow-x:auto}
+#out .h{color:var(--ink);font-weight:700}
+#out .k{color:var(--green)}
+hr{border:0;border-top:1px solid var(--line);margin:.8em 0}
+#inputline{display:flex;gap:.5em;padding:.55rem 1rem 1.1rem;max-width:56rem;width:100%;margin:0 auto;
+  position:sticky;bottom:0;background:var(--bg)}
+#prompt{color:var(--green);white-space:nowrap}
+#cmd{flex:1;background:transparent;border:0;outline:0;color:var(--ink);font:inherit;caret-color:var(--green)}
+#chips{position:sticky;bottom:0;display:flex;gap:.45rem;overflow-x:auto;padding:.5rem .8rem .8rem;
+  background:linear-gradient(var(--bg) 62%,transparent);-webkit-overflow-scrolling:touch}
+#chips button{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--ink);
+  border-radius:14px;padding:.32em .85em;font:inherit;font-size:.78rem;cursor:pointer}
+#chips button:hover{border-color:var(--green);color:var(--green)}
+@media(max-width:640px){body{font-size:13px} #out .banner{font-size:.68rem}}
+noscript div{padding:2rem}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<header>
-  <div class="avatar">S</div>
-  <h1>Season</h1>
-  <p class="bio">在职开发者，白天造系统，晚上造自己的东西。</p>
-</header>
-
-<h2>在做的产品</h2>
-<div class="grid">
-  <a class="item" href="/coach">
-    <div class="t"><i class="ico">🐈</i>卷腹猫</div>
-    <div class="d">AI 健康打卡 Agent：每日打卡、体重趋势、圈子排行榜，LLM 复盘你的坚持。</div>
-    <div class="u">/coach</div>
-  </a>
-  <a class="item" href="/breath">
-    <div class="t"><i class="ico">🌱</i>呼吸</div>
-    <div class="d">每天留下一个存在证明。一天一张照片，一句话。</div>
-    <div class="u">/breath</div>
-  </a>
-  <a class="item wide" href="/technews">
-    <div class="t"><i class="ico">📡</i>科技情报</div>
-    <div class="d">AI 行业的每日精选与深度解读。</div>
-    <div class="u">/technews</div>
-  </a>
-  <a class="item wide" href="/photos/dongdong">
-    <div class="t"><i class="ico">📷</i>冬冬的镜头</div>
-    <div class="d">摄影师朋友的作品展墙：深圳的海、雨与山。</div>
-    <div class="u">/photos/dongdong</div>
-  </a>
+<div id="term"><div id="out"></div></div>
+<div id="inputline">
+  <span id="prompt">guest@softslow:~$</span>
+  <input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="命令输入">
 </div>
+<div id="chips"></div>
+<noscript><div>需要 JavaScript 才能进入终端。<br>
+手动导航：<a href="/coach">卷腹猫</a> · <a href="/technews/">科技情报（11 篇文章）</a> · <a href="/photos/dongdong/">冬冬的镜头</a> · <a href="/breath/">呼吸</a></div></noscript>
 
-<footer>© 2026 Season</footer>
+<script>
+/* ============ 数据 ============ */
+var FALLBACK_ARTICLES = [
+  {slug:"anthropic-ipo-price-talk",title:"从 2 万亿到 1.2 万亿：史上最大 IPO 是怎么讲价的",date:"2026-11-10",series:"深度解读",summary:"路演还没开始，估值讨论已从 2 万亿回到 1.2-1.3 万亿——史上最大 IPO 正在被公开讲价。",words:1965},
+  {slug:"nvidia-as-guarantor",title:"英伟达开始干银行的活：AI 万亿承诺背后的担保人",date:"2026-11-09",series:"算力金融",summary:"卖芯片的公司开始替买芯片的人按手印借钱——担保、信用循环，和朗讯、北电的历史回声。",words:2287},
+  {slug:"openai-acquires-pierre",title:"OpenAI 买下\"代码住的地方\"，AI 编程大战换战场了",date:"2026-11-08",series:"深度解读",summary:"当 AI 写代码的速度超过 Git 的设计，\"代码住在哪\"成了新的胜负手。",words:1723},
+  {slug:"openai-funding-reprice",title:"一周蒸发 1.3 万亿、OpenAI 砍掉 100 亿融资：AI 估值的第一笔\"还价\"",date:"2026-11-07",series:"深度解读",summary:"不是泡沫破裂，是定价权换手——私募第一次按公开市场的规则还价。",words:1908},
+  {slug:"ai-weekly-001",title:"AI 周报 #1：这周，AI 圈聊的全是\"钱\"和\"墙\"",date:"2026-11-06",series:"AI周报",summary:"创刊号：这周该更新的六个认知。",words:1674},
+  {slug:"claude-linux-desktop",title:"Claude 自己偷偷用着 Linux，却不给 Linux 用户一个桌面版",date:"2026-06-08",series:"深度解读",summary:"claude-code 仓库里一份罕见的\"技术提案式\" Issue。",words:2331},
+  {slug:"qwen-on-iphone",title:"千问上了 iPhone：等了两年的 Apple 智能进中国，赢家为什么是它",date:"2026-11-03",series:"深度解读",summary:"模型决定入场券，渠道决定胜负。",words:2501},
+  {slug:"black-october-ai-keys",title:"黑色十月：小偷不偷数据了，改偷 AI 钥匙",date:"2026-11-04",series:"安全速写",summary:"九个平台连环失窃、假官方扩展、模型自主攻击——附五条自保清单。",words:1796},
+  {slug:"ai-search-answer-leaves-link-dies",title:"一天蒸发 5000 亿：当 AI 搜索决定\"答案留下，链接消失\"",date:"2026-11-05",series:"深度解读",summary:"\"内容免费、广告买单\"的旧契约，正在被 AI 搜索重新议价。",words:1867},
+  {slug:"anthropic-9000b-real-debt",title:"Anthropic 招股书再读：807 亿亏损是幻觉，9000 亿承诺才是真债",date:"2026-11-02",series:"算力金融",summary:"真正吓人的数字写在报表之外。",words:2768},
+  {slug:"anthropic-ipo-807b",title:"Anthropic 要上市了：看清 807 亿美元\"亏损\"的真相，再谈 2 万亿估值",date:"2026-10-29",series:"算力金融",summary:"一家\"净亏 807 亿\"的公司，凭什么谈 2 万亿估值。",words:2129}
+];
 
-</div>
+var NOW_TEXT = [
+  "· 白天：在职开发者",
+  "· 晚上：卷腹猫 / 呼吸 / 科技情报 / 这台终端",
+  "· 正在做：把个人站变好玩（你正在用的就是成果）",
+  "· 呼吸：第 0 天（第一张照片还没拍）"
+].join("\n");
+
+var WHO_TEXT = [
+  "Season — 在职开发者。",
+  "白天造系统，晚上造自己的东西。",
+  "不追热点，只更新认知。慢就是快。"
+].join("\n");
+
+var FIRST_ONLINE = "2026-11-06";   // softslow.cloud 首次上线
+
+/* ============ 状态 ============ */
+var S = {
+  hist: JSON.parse(localStorage.getItem("term.hist") || "[]"),
+  hIdx: -1, articles: null, totalWords: 0, photos: null,
+  cwd: "~", online: false
+};
+var $out = document.getElementById("out");
+var $cmd = document.getElementById("cmd");
+
+/* ============ 输出 ============ */
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+function print(html, cls){
+  var d = document.createElement("div");
+  d.className = cls || "out"; d.innerHTML = html;
+  $out.appendChild(d);
+  var term = document.getElementById("term");
+  term.scrollTop = term.scrollHeight;
+}
+function printCmd(line){
+  print('<span class="p">guest@softslow:' + esc(S.cwd) + '$</span> ' + esc(line), "cmd");
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+/* ============ 虚拟文件系统 ============ */
+var LINKS = {
+  "photos":  {to:"/photos/dongdong/",  label:"冬冬的镜头 — 摄影相册（冬冬的作品集）"},
+  "breath":  {to:"/breath/",           label:"呼吸 — 每天留下一个存在证明"},
+  "coach":   {to:"/coach",             label:"卷腹猫 — AI 健康打卡 Agent"},
+  "technews":{to:"/technews/",         label:"科技情报 — AI 深度解读"}
+};
+function homeChildren(){
+  return ["articles/", "photos/", "breath/", "coach/", "technews/", "about.md", "now.md"];
+}
+function articleChildren(){
+  return (S.articles||[]).map(function(a){ return a.slug + ".md"; });
+}
+
+/* ============ 命令 ============ */
+var CMDS = {};
+CMDS.help = {
+  d:"列出可用命令", f:function(){
+    print([
+      '<span class="h">可用命令</span>',
+      "  ls / cd / pwd          虚拟文件系统",
+      "  cat <file>             读文件（about.md now.md articles/<slug>.md）",
+      "  articles               全部文章列表",
+      "  read <slug>            打开一篇文章",
+      "  random                 随机读一篇",
+      "  stats                  站点真实数据",
+      "  photos breath coach technews   跳转到对应站点",
+      "  whoami / now / date    关于我 / 近况 / 时间",
+      "  theme                  明暗切换",
+      "  clear / history / echo",
+      "",
+      '<span class="dim">提示：Tab 补全，↑↓ 翻历史。有些命令不该敲，但你偏会敲。</span>'
+    ].join("\n"));
+  }
+};
+CMDS.ls = { d:"列表", f:function(args){
+  var t = args[0] || S.cwd;
+  var path = resolvePath(t);
+  if(!path){ print("ls: 无法访问 " + esc(t), "err"); return; }
+  if(path === "~"){
+    print(homeChildren().map(function(x){ return x.endsWith("/") ? '<span class="k">'+x+'</span>' : x; }).join("   "));
+  } else if(path === "~/articles"){
+    var c = articleChildren();
+    print(c.length ? c.join("   ") : "(空)");
+  } else if(LINKS[path.slice(2)]){
+    print(LINKS[path.slice(2)].label);
+  } else if(path === "~/" ){
+    print(homeChildren().join("   "));
+  } else { print("ls: 无法访问 " + esc(t), "err"); }
+}};
+CMDS.pwd = { d:"当前路径", f:function(){ print(S.cwd); } };
+function resolvePath(t){
+  if(!t || t === "~" || t === "~/" ) return "~";
+  if(t === "..") return "~";
+  if(t === "articles" || t === "~/articles" || t === "./articles") return "~/articles";
+  var base = t.replace(/^~\//,"").replace(/^\.\//,"").replace(/\/$/,"");
+  if(LINKS[base]) return "~/" + base;
+  if(base === "articles") return "~/articles";
+  return null;
+}
+CMDS.cd = { d:"切换目录", f:function(args){
+  var t = args[0] || "~";
+  var p = resolvePath(t);
+  if(!p){ print("cd: 没有那个文件或目录: " + esc(t), "err"); return; }
+  if(LINKS[p.slice(2)]){
+    var L = LINKS[p.slice(2)];
+    print("正在打开 " + L.label + " …", "dim");
+    setTimeout(function(){ location.href = L.to; }, 350);
+    return;
+  }
+  S.cwd = p;
+  document.getElementById("prompt").textContent = "guest@softslow:" + S.cwd + "$";
+}};
+CMDS.cat = { d:"读文件", f:function(args){
+  if(!args[0]){ print("cat: 缺少文件名（试试 cat about.md）", "err"); return; }
+  var t = args[0], p = resolvePath(t);
+  if(t === "about.md" || p === "~" && t === "about.md"){
+    print(WHO_TEXT); return;
+  }
+  if(t === "now.md"){ print(NOW_TEXT); return; }
+  var m = t.match(/^articles\/([^\/]+)\.md$/) || (S.cwd==="~/articles" ? t.match(/^([^\/]+)\.md$/) : null);
+  if(m){
+    var slug = m[1];
+    var a = (S.articles||[]).filter(function(x){return x.slug===slug;})[0];
+    if(!a){ print("cat: 没有那篇文章: " + esc(slug), "err"); return; }
+    print('<span class="h">' + esc(a.title) + '</span>\n'
+      + '<span class="dim">' + esc(a.date) + " · " + esc(a.series||"") + " · 约 " + esc(a.words) + " 字</span>\n\n"
+      + esc(a.summary) + '\n\n<a href="/technews/posts/' + esc(slug) + '.html">open → 阅读全文</a>');
+    return;
+  }
+  print("cat: 没有那个文件: " + esc(t), "err");
+}};
+CMDS.articles = { d:"文章列表", f:function(){
+  var list = S.articles || [];
+  if(!list.length){ print("文章数据还没加载好，稍后再试", "dim"); return; }
+  print(list.map(function(a){
+    return '<span class="dim">' + esc(a.date) + '</span>  <a href="/technews/posts/' + esc(a.slug) + '.html">' + esc(a.title) + '</a>'
+      + '  <span class="dim">' + esc(a.series||"") + '</span>';
+  }).join("\n"));
+}};
+CMDS.read = { d:"打开文章", f:function(args){
+  if(!args[0]){ print("read: 缺少 slug（先 articles 看列表）", "err"); return; }
+  var slug = args[0].replace(/\.md$/,"").replace(/\.html$/,"");
+  var ok = (S.articles||[]).some(function(x){return x.slug===slug;});
+  if(!ok){ print("read: 没有那篇文章（articles 查看列表）", "err"); return; }
+  print("正在打开 …", "dim");
+  setTimeout(function(){ location.href = "/technews/posts/" + slug + ".html"; }, 300);
+}};
+CMDS.random = { d:"随机一篇", f:function(){
+  var list = S.articles || [];
+  if(!list.length){ print("文章数据还没加载好", "dim"); return; }
+  var a = list[Math.floor(Math.random()*list.length)];
+  print('命运抽中了：<span class="h">' + esc(a.title) + '</span>（' + esc(a.date) + '）\n正在打开 …', "dim");
+  setTimeout(function(){ location.href = "/technews/posts/" + a.slug + ".html"; }, 500);
+}};
+CMDS.stats = { d:"真实数据", f:function(){
+  var days = Math.max(1, Math.ceil((Date.now() - new Date(FIRST_ONLINE+"T00:00:00+08:00"))/86400000));
+  var arts = S.articles||[];
+  print([
+    '<span class="h">softslow.cloud</span> <span class="dim">— 全部为真实数据</span>',
+    "  在线天数        " + days + " 天（自 " + FIRST_ONLINE + "）",
+    "  文章            " + arts.length + " 篇",
+    "  累计字数        " + (S.totalWords||0).toLocaleString() + " 字",
+    "  照片            " + (S.photos!=null ? S.photos : "…") + " 张（冬冬摄）",
+    "  产品            卷腹猫 · 呼吸 · 科技情报",
+    "  更新方式        每日 06:30 定时自动发布",
+    '  <span class="dim">数据源：site.json / photos.json</span>'
+  ].join("\n"));
+}};
+CMDS.photos = LINKJUMP("photos"); CMDS.breath = LINKJUMP("breath");
+CMDS.coach = LINKJUMP("coach"); CMDS.technews = LINKJUMP("technews");
+function LINKJUMP(k){
+  return { d:"打开 " + LINKS[k].label.split(" —")[0], f:function(){
+    print("正在打开 " + LINKS[k].label + " …", "dim");
+    setTimeout(function(){ location.href = LINKS[k].to; }, 350);
+  }};
+}
+CMDS.whoami = { d:"我是谁", f:function(){ print(WHO_TEXT); } };
+CMDS.now = { d:"近况", f:function(){ print(NOW_TEXT); } };
+CMDS.date = { d:"时间", f:function(){ print(new Date().toString()); } };
+CMDS.theme = { d:"明暗切换", f:function(){
+  var el = document.documentElement;
+  el.dataset.theme = el.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem("term.theme", el.dataset.theme);
+  print("theme → " + el.dataset.theme, "dim");
+}};
+CMDS.clear = { d:"清屏", f:function(){ $out.innerHTML = ""; } };
+CMDS.history = { d:"历史", f:function(){
+  print(S.hist.length ? S.hist.map(function(h,i){ return (i+1)+"  "+esc(h); }).join("\n") : "(空)");
+}};
+CMDS.echo = { d:"回声", f:function(args){ print(esc(args.join(" ")) || " "); } };
+
+/* 彩蛋 */
+CMDS.sudo = { hidden:true, f:function(args){
+  print(args.length ? "guest 不在 sudoers 文件中。此事将被报告。" : "usage: sudo <你想象中的权限>", "err");
+}};
+CMDS.vim = CMDS.vi = CMDS.nano = { hidden:true, f:function(){
+  print("这是一个网页，不是你的编辑器。（退出 vim 的方法：先按 Esc，再输入 :q!）", "dim");
+}};
+CMDS["rm"] = { hidden:true, f:function(args){
+  var j = args.join(" ");
+  if(/-rf|\/$/.test(j)) print("rm: 文件系统是只读的。 nice try. 🌱", "err");
+  else print("rm: 拒绝操作 — 这里只进不出。", "err");
+}};
+CMDS.exit = CMDS.logout = CMDS.quit = { hidden:true, f:function(){
+  print("没有出口。这是互联网。（试试 clear，重新开始）", "dim");
+}};
+CMDS["42"] = { hidden:true, f:function(){ print("对，但问题是什么？", "dim"); }};
+CMDS.hello = CMDS.hi = { hidden:true, f:function(){ print("你好。试试 stats，看看这里都有些什么。", "dim"); }};
+CMDS.ping = { hidden:true, f:function(){
+  print("PING softslow.cloud: 0.001ms — 你已经在这台服务器上了。", "dim");
+}};
+CMDS["load"] = CMDS.top = { hidden:true, f:function(){
+  print("load average: 0.01, 0.01, 0.01 — 服务器很闲，我很忙。", "dim");
+}};
+
+var CMD_NAMES = Object.keys(CMDS).filter(function(k){ return !CMDS[k].hidden; });
+
+/* ============ 执行 ============ */
+function run(line){
+  line = line.trim();
+  printCmd(line);
+  if(!line) return;
+  S.hist.push(line);
+  if(S.hist.length > 200) S.hist.shift();
+  localStorage.setItem("term.hist", JSON.stringify(S.hist));
+  S.hIdx = -1;
+  var parts = line.split(/\s+/);
+  var name = parts[0], args = parts.slice(1);
+  var c = CMDS[name];
+  if(c) c.f(args);
+  else print("sh: 未找到命令: " + esc(name) + '（输入 <a href="javascript:void(0)" onclick="term.run(\'help\')">help</a> 查看可用命令）', "err");
+}
+window.term = { run: run };   // 供测试与移动端按钮使用
+
+/* ============ 输入框 ============ */
+$cmd.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    var v = $cmd.value; $cmd.value = ""; run(v);
+  } else if(e.key === "ArrowUp"){
+    e.preventDefault();
+    if(!S.hist.length) return;
+    if(S.hIdx === -1) S.hIdx = S.hist.length;
+    S.hIdx = Math.max(0, S.hIdx - 1);
+    $cmd.value = S.hist[S.hIdx] || "";
+  } else if(e.key === "ArrowDown"){
+    e.preventDefault();
+    if(S.hIdx === -1) return;
+    S.hIdx = Math.min(S.hist.length, S.hIdx + 1);
+    $cmd.value = S.hist[S.hIdx] || "";
+    if(S.hIdx >= S.hist.length){ S.hIdx = -1; $cmd.value = ""; }
+  } else if(e.key === "Tab"){
+    e.preventDefault();
+    tabComplete();
+  } else if(e.key === "l" && e.ctrlKey){
+    e.preventDefault(); $cmd.value = ""; run("clear");
+  }
+});
+function tabComplete(){
+  var v = $cmd.value, parts = v.split(/\s+/);
+  var names;
+  if(parts.length <= 1){ names = CMD_NAMES; }
+  else if(parts[0] === "cat" || parts[0] === "read"){
+    names = parts[0] === "cat" ? ["about.md","now.md"].concat(articleChildren()) : articleChildren();
+  } else if(parts[0] === "cd"){ names = homeChildren(); }
+  else return;
+  var last = parts[parts.length-1];
+  var hits = names.filter(function(n){ return n.indexOf(last) === 0; });
+  if(!hits.length) return;
+  if(hits.length === 1){
+    parts[parts.length-1] = hits[0];
+    $cmd.value = parts.join(" ");
+  } else {
+    // 公共前缀
+    var pre = hits[0];
+    hits.forEach(function(h){ while(!h.startsWith(pre)) pre = pre.slice(0,-1); });
+    parts[parts.length-1] = pre;
+    $cmd.value = parts.join(" ");
+    printCmd(v);
+    print(hits.join("   "));
+  }
+}
+document.getElementById("term").addEventListener("click", function(){ $cmd.focus(); });
+
+/* ============ 移动端命令条 ============ */
+var chips = ["help","ls","articles","stats","photos","breath","coach","random","whoami","theme"];
+var $chips = document.getElementById("chips");
+chips.forEach(function(c){
+  var b = document.createElement("button");
+  b.type = "button"; b.textContent = c;
+  b.addEventListener("click", function(){ run(c); $cmd.focus(); });
+  $chips.appendChild(b);
+});
+
+/* ============ 启动 ============ */
+var BANNER =
+" _____ ____   ___  _        ___  ____\n" +
+"/  ___/ ___| / _ \\| |      / _ \\|  _ \\\n" +
+"\\___ \\\\___ \\| |_) || |____| | | | |_) |\n" +
+" ___) |___) |  _ < | |____| |_| |  _ <\n" +
+"|____/____/|_| \\_\\|_|      \\___/|_| \\_\\\n" +
+"        softslow.cloud — Season";
+
+var pathname = location.pathname.replace(/\/(index\.html)?$/,"") || "/";
+var konami = [];
+
+async function boot(){
+  // 恢复主题
+  var th = localStorage.getItem("term.theme");
+  if(th) document.documentElement.dataset.theme = th;
+  else if(window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches)
+    document.documentElement.dataset.theme = "light";
+
+  print('<span class="banner">' + esc(BANNER) + "</span>");
+  await sleep(250);
+  print("softslow.cloud terminal — v2026.11", "dim");
+
+  // 拉真实数据
+  try {
+    var r = await fetch("/technews/site.json?v=" + Date.now());
+    if(!r.ok) throw 0;
+    var j = await r.json();
+    S.articles = j.articles; S.totalWords = j.total_words; S.generated = j.generated;
+    print("site.json  … ok（" + j.articles.length + " 篇文章，" + j.total_words.toLocaleString() + " 字）", "dim");
+  } catch(e){
+    S.articles = FALLBACK_ARTICLES;
+    S.totalWords = FALLBACK_ARTICLES.reduce(function(s,a){return s+a.words;},0);
+    print("site.json  … offline mode", "dim");
+  }
+  try {
+    var r2 = await fetch("/photos/dongdong/photos.json");
+    if(r2.ok){ var j2 = await r2.json(); S.photos = j2.length; }
+    print("photos.json … ok（" + (S.photos!=null?S.photos:"?") + " 张）", "dim");
+  } catch(e){ print("photos.json … offline", "dim"); }
+  await sleep(150);
+
+  print('<span class="k">输入 help 查看命令。Tab 补全，↑↓ 历史。</span>');
+  if(pathname && pathname !== "/" && pathname !== "/index.html"){
+    print('sh: command not found: ' + esc(pathname) + '（这就是 404 的样子）', "err");
+  }
+  $cmd.focus();
+}
+boot();
+
+/* ============ Konami 彩蛋 ============ */
+var KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+document.addEventListener("keydown", function(e){
+  konami.push(e.key); if(konami.length > 10) konami.shift();
+  if(KONAMI.every(function(k,i){ return konami[i] === k; })){
+    konami = [];
+    print('<span class="k"> unlocks: pieter.com 致敬模式已激活。</span>');
+    print("真正的大神在这里 → <a href=\"https://pieter.com\" target=\"_blank\" rel=\"noopener\">pieter.com</a>（浏览器里跑 Windows 3.11 + DOOM）", "dim");
+  }
+});
+</script>
 </body>
 </html>
