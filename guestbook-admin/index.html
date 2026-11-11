@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>留言簿管理</title>
+<style>
+body{margin:0;background:#131312;color:#e6e4df;font:14px/1.8 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.box{max-width:36rem;margin:0 auto;padding:2rem 1.2rem 4rem}
+h1{font-size:1.1rem;margin:0 0 1rem}
+.row{display:flex;gap:.6rem;align-items:baseline;border-bottom:1px solid #2a2a26;padding:.6rem .2rem}
+.row .meta{color:#8f8d85;font-size:.75rem;flex:0 0 9.5rem}
+.row .text{flex:1}
+.row button{background:#2a2a26;color:#e6e4df;border:0;border-radius:6px;padding:.2em .7em;cursor:pointer;font:inherit;font-size:.75rem}
+.row button:hover{background:#e05a4e}
+p.tip{color:#8f8d85;font-size:.8rem}
+</style></head><body><div class="box">
+<h1>留言簿管理</h1>
+<p class="tip">共 <span id="cnt">…</span> 条 · 删除不可恢复</p>
+<div id="list">读取中…</div>
+</div>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function loadList(){
+  fetch('api/list').then(function(r){return r.json();}).then(function(items){
+    document.getElementById('cnt').textContent=items.length;
+    document.getElementById('list').innerHTML=items.map(function(e){
+      return '<div class="row"><span class="meta">#'+e.id+' · '+esc(e.name||'路人')+' · '+esc(e.ts)+'</span>'
+        +'<span class="text">'+esc(e.text)+'</span>'
+        +'<button data-id="'+e.id+'">删除</button></div>';
+    }).join('')||'<p class="tip">空</p>';
+    document.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(){
+        if(!confirm('删除 #'+b.dataset.id+'？'))return;
+        fetch('api/delete',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({id:+b.dataset.id})}).then(loadList);
+      });
+    });
+  });
+}
+loadList();
+</script></body></html>

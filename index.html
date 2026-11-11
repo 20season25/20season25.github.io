@@ -125,10 +125,12 @@ var LINKS = {
   "photos":  {to:"/photos/dongdong/",  label:"冬冬的镜头 — 摄影相册（冬冬的作品集）"},
   "breath":  {to:"/breath/",           label:"呼吸 — 每天留下一个存在证明"},
   "coach":   {to:"/coach",             label:"卷腹猫 — AI 健康打卡 Agent"},
-  "technews":{to:"/technews/",         label:"科技情报 — AI 深度解读"}
+  "technews":{to:"/technews/",         label:"科技情报 — AI 深度解读"},
+  "github":  {to:"https://github.com/20season25", label:"GitHub — 代码与提交记录"},
+  "guestbook":{to:"/guestbook/",       label:"访客留言簿 — 留下你说的话"}
 };
 function homeChildren(){
-  return ["articles/", "photos/", "breath/", "coach/", "technews/", "about.md", "now.md"];
+  return ["articles/", "photos/", "breath/", "coach/", "technews/", "guestbook/", "github/", "about.md", "now.md"];
 }
 function articleChildren(){
   return (S.articles||[]).map(function(a){ return a.slug + ".md"; });
@@ -148,6 +150,11 @@ CMDS.help = {
       "  random                 随机读一篇",
       "  stats                  站点真实数据",
       "  photos breath coach technews   跳转到对应站点",
+      "  search <关键词>        站内搜索（标题/摘要/标签）",
+      "  neofetch / fortune     系统信息 / 随机一句",
+      "  cowsay / flip / roll   牛 / 硬币 / 骰子",
+      "  weather / guestbook    天气 / 访客留言簿",
+      "  github                 代码仓库",
       "  whoami / now / date    关于我 / 近况 / 时间",
       "  theme                  明暗切换",
       "  clear / history / echo",
@@ -288,6 +295,122 @@ CMDS.history = { d:"历史", f:function(){
 }};
 CMDS.echo = { d:"回声", f:function(args){ print(esc(args.join(" ")) || " "); } };
 
+CMDS.neofetch = { d:"系统信息", f:function(){
+  var days = Math.max(1, Math.ceil((Date.now() - new Date(FIRST_ONLINE+"T00:00:00+08:00"))/86400000));
+  var art = [
+    " /\_/\ ",
+    "( o.o ) ",
+    " > ^ <  ",
+    "        ",
+    "卷腹猫  "];
+  var info = [
+    '<span class="h">guest@softslow.cloud</span>',
+    "──────────────────────────",
+    "OS        SoftSlow Cloud v2026.11",
+    "Host      腾讯云 · 广州",
+    "Uptime    " + days + " 天",
+    "Shell     softterm 1.0",
+    "Theme     " + (document.documentElement.dataset.theme || "dark"),
+    "Articles  " + (S.articles||[]).length + " 篇 / " + (S.totalWords||0).toLocaleString() + " 字",
+    "Photos    " + (S.photos!=null?S.photos:"?") + " 张（冬冬摄）",
+    "Products  卷腹猫 · 呼吸 · 科技情报",
+    "Memory    " + (S.totalWords||0).toLocaleString() + " 字 / ∞"
+  ];
+  var rows = Math.max(art.length, info.length), out = [];
+  for(var i=0;i<rows;i++){
+    out.push((art[i]||" ".repeat(8)) + "  " + (info[i]||""));
+  }
+  print(esc("").slice(0,0) + out.join("
+"));
+}};
+
+var FORTUNES = [
+  "慢就是快。",
+  "先完成，再完美。",
+  "记录是唯一不会背叛你的投资。",
+  "答案留下，链接消失——所以把链接攥在自己手里。",
+  "增长不是可选项，是生存条件。",
+  "别在深夜做决定，除了写代码。",
+  "一台服务器，一杯茶，一个深夜。",
+  "代码要么能跑，要么不能跑——这是世界上最后一块诚实之地。",
+  "所有恐惧都是对注意力的浪费。",
+  "享受当下，顺便优化流程。",
+  "不追热点，热点会来找你。"
+];
+CMDS.fortune = { d:"随机一句", f:function(){
+  print('<span class="k">「' + esc(FORTUNES[Math.floor(Math.random()*FORTUNES.length)]) + '」</span>');
+}};
+
+function wrapCJK(t, n){
+  var out = [], cur = "";
+  for(var i=0;i<t.length;i++){ cur += t[i]; if(cur.length >= n){ out.push(cur); cur = ""; } }
+  if(cur) out.push(cur);
+  if(!out.length) out = [""];
+  return out;
+}
+CMDS.cowsay = { d:"牛说话", f:function(args){
+  var t = (args.join(" ") || "moo~").slice(0, 120);
+  var lines = wrapCJK(t, 16);
+  var w = Math.max.apply(null, lines.map(function(l){ return l.length; }));
+  function pad(l){ return l + " ".repeat(w - l.length); }
+  var out = [" " + "_".repeat(w+2)];
+  if(lines.length === 1) out.push("< " + pad(t) + " >");
+  else {
+    out.push("/ " + pad(lines[0]) + " \\");
+    for(var i=1;i<lines.length-1;i++) out.push("| " + pad(lines[i]) + " |");
+    out.push("\ " + pad(lines[lines.length-1]) + " /");
+  }
+  out.push(" " + "-".repeat(w+2));
+  out.push("        \   ^__^");
+  out.push("         \  (oo)\_______");
+  out.push("            (__)\       )\/\\");
+  out.push("                ||----w |");
+  out.push("                ||     ||");
+  print(esc(out.join("
+")));
+}};
+
+CMDS.flip = { d:"抛硬币", f:function(){ print("🪙 " + (Math.random()<.5 ? "正面" : "反面")); }};
+CMDS.roll = { d:"掷骰子", f:function(args){
+  var n = parseInt(args[0]) || 6;
+  n = Math.min(Math.max(n, 2), 100);
+  print("🎲 " + (1 + Math.floor(Math.random()*n)) + " / " + n);
+}};
+
+CMDS.weather = { d:"广州天气", f:function(){
+  print("查询中…", "dim");
+  var codes = {0:"晴",1:"大致晴",2:"多云",3:"阴",45:"雾",48:"雾凇",51:"毛毛雨",53:"毛毛雨",55:"毛毛雨",
+    61:"小雨",63:"中雨",65:"大雨",66:"冻雨",71:"小雪",73:"中雪",75:"大雪",80:"阵雨",81:"阵雨",82:"强阵雨",95:"雷暴",96:"雷暴伴冰雹",99:"雷暴伴冰雹"};
+  fetch("https://api.open-meteo.com/v1/forecast?latitude=23.1291&longitude=113.2644&current=temperature_2m,weather_code&timezone=Asia%2FShanghai")
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var c = j.current;
+      var t = codes[c.weather_code] || ("天气代码 " + c.weather_code);
+      print("广州 · " + t + " · " + c.temperature_2m + "°C <span class=\"dim\">(open-meteo)</span>");
+    })
+    .catch(function(){ print("weather: 气象服务不可达", "err"); });
+}};
+
+CMDS.matrix = { hidden:true, f:function(){
+  var chars = "01アイウエオカキクケコサシスセソ<>/\|=+*";
+  var n = 0;
+  var iv = setInterval(function(){
+    var line = "";
+    for(var i=0;i<62;i++) line += chars[Math.floor(Math.random()*chars.length)];
+    print('<span style="opacity:.65">' + esc(line) + "</span>");
+    if(++n > 22){ clearInterval(iv); print("Wake up, Season…", "err"); }
+  }, 90);
+}};
+
+CMDS.github = { d:"打开 GitHub", f:function(){
+  print("正在打开 GitHub …", "dim");
+  setTimeout(function(){ location.href = "https://github.com/20season25"; }, 350);
+}};
+CMDS.guestbook = { d:"打开留言簿", f:function(){
+  print("正在打开访客留言簿 …", "dim");
+  setTimeout(function(){ location.href = "/guestbook/"; }, 350);
+}};
+
 /* 彩蛋 */
 CMDS.sudo = { hidden:true, f:function(args){
   print(args.length ? "guest 不在 sudoers 文件中。此事将被报告。" : "usage: sudo <你想象中的权限>", "err");
@@ -381,7 +504,7 @@ function tabComplete(){
 document.getElementById("term").addEventListener("click", function(){ $cmd.focus(); });
 
 /* ============ 移动端命令条 ============ */
-var chips = ["help","ls","articles","stats","photos","breath","coach","random","whoami","theme"];
+var chips = ["help","ls","articles","search","stats","neofetch","photos","breath","coach","random","whoami","fortune","guestbook","theme"];
 var $chips = document.getElementById("chips");
 chips.forEach(function(c){
   var b = document.createElement("button");
@@ -432,7 +555,9 @@ async function boot(){
   } catch(e){ print("photos.json … offline", "dim"); }
   await sleep(150);
 
-  print('<span class="k">输入 help 查看命令。Tab 补全，↑↓ 历史。</span>');
+  var h = new Date().getHours();
+  var greet = h<5 ? '夜深了，还醒着？' : h<11 ? '早安。' : h<14 ? '午安。' : h<18 ? '下午好。' : h<23 ? '晚上好。' : '夜深了，还醒着？';
+  print(greet + ' <span class="k">输入 help</span> 查看命令。Tab 补全，↑↓ 历史。');
   if(pathname && pathname !== "/" && pathname !== "/index.html"){
     print('sh: command not found: ' + esc(pathname) + '（这就是 404 的样子）', "err");
   }
