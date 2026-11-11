@@ -320,8 +320,7 @@ CMDS.neofetch = { d:"系统信息", f:function(){
   for(var i=0;i<rows;i++){
     out.push((art[i]||" ".repeat(8)) + "  " + (info[i]||""));
   }
-  print(esc("").slice(0,0) + out.join("
-"));
+  print(out.join("\n"));
 }};
 
 var FORTUNES = [
@@ -366,8 +365,7 @@ CMDS.cowsay = { d:"牛说话", f:function(args){
   out.push("            (__)\       )\/\\");
   out.push("                ||----w |");
   out.push("                ||     ||");
-  print(esc(out.join("
-")));
+  print(esc(out.join("\n")));
 }};
 
 CMDS.flip = { d:"抛硬币", f:function(){ print("🪙 " + (Math.random()<.5 ? "正面" : "反面")); }};
