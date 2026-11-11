@@ -11,6 +11,11 @@
 @media (prefers-color-scheme:dark){:root{--bg:#131312;--ink:#e6e4df;--sub:#8f8d85;
 --line:#2a2a26;--accent:#8fae8f;--card:#1b1b19}}
 *{box-sizing:border-box}
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--dim)}
 body{margin:0;background:var(--bg);color:var(--ink);
 font:16px/2 "Source Han Serif SC","Noto Serif SC","Songti SC",STSong,SimSun,Georgia,serif}
 .wrap{max-width:34rem;margin:0 auto;padding:3rem 1.25rem 4rem}
