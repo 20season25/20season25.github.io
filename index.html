@@ -144,6 +144,7 @@ CMDS.help = {
       "  cat <file>             读文件（about.md now.md articles/<slug>.md）",
       "  articles               全部文章列表",
       "  read <slug>            打开一篇文章",
+      "  search <关键词>        站内搜索（标题/摘要/标签）",
       "  random                 随机读一篇",
       "  stats                  站点真实数据",
       "  photos breath coach technews   跳转到对应站点",
@@ -218,6 +219,21 @@ CMDS.articles = { d:"文章列表", f:function(){
   print(list.map(function(a){
     return '<span class="dim">' + esc(a.date) + '</span>  <a href="/technews/posts/' + esc(a.slug) + '.html">' + esc(a.title) + '</a>'
       + '  <span class="dim">' + esc(a.series||"") + '</span>';
+  }).join("\n"));
+}};
+CMDS.search = { d:"站内搜索", f:function(args){
+  if(!args.length){ print('search: 缺少关键词，例：<span class="k">search 芯片</span>', "err"); return; }
+  var kw = args.join(" ").toLowerCase();
+  var list = (S.articles||[]).filter(function(a){
+    return (a.title + a.summary + (a.series||"") + (a.tags||[]).join("") + a.slug)
+      .toLowerCase().indexOf(kw) >= 0;
+  });
+  if(!list.length){
+    print('search: 没有找到含 "' + esc(kw) + '" 的文章（搜索范围：标题/摘要/标签）', "dim");
+    return;
+  }
+  print('<span class="k">找到 ' + list.length + ' 篇：</span>\n' + list.map(function(a){
+    return '<span class="dim">' + esc(a.date) + '</span>  <a href="/technews/posts/' + esc(a.slug) + '.html">' + esc(a.title) + '</a>';
   }).join("\n"));
 }};
 CMDS.read = { d:"打开文章", f:function(args){

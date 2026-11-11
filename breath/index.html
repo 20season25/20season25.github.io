@@ -102,14 +102,28 @@ a:hover{color:var(--accent);border-bottom-color:var(--accent)}
     }
     el.meta.innerHTML += ' · 连续 ' + streak + ' 天';
 
-    el.tl.innerHTML = entries.map(function(e){
-      return '<div class="entry"><div class="date"><span>' + esc(e.date) + '</span>'
-        + '<span>' + esc(e.weather || '') + '</span></div>'
-        + '<div class="body">'
-        + (e.photo ? '<img src="photos/' + esc(e.photo) + '" loading="lazy" alt="">' : '')
-        + '<div class="text">' + esc(e.text || '') + '</div>'
-        + '</div></div>';
+    // 按月分组
+    var byMonth = {}, order = [];
+    entries.forEach(function(e){
+      var m = e.date.slice(0,7);
+      if(!byMonth[m]){ byMonth[m] = []; order.push(m); }
+      byMonth[m].push(e);
+    });
+    var html = order.map(function(m){
+      var list = byMonth[m];
+      return '<div style="margin:2.4rem 0 1.2rem;color:var(--sub);font-family:system-ui,sans-serif;'
+        + 'font-size:.8rem;letter-spacing:.12em;border-bottom:1px solid var(--line);padding-bottom:.3rem">'
+        + m.replace('-',' 年 ') + ' 月 · ' + list.length + ' 条</div>'
+        + list.map(function(e){
+          return '<div class="entry"><div class="date"><span>' + esc(e.date.slice(5)) + '</span>'
+            + '<span>' + esc(e.weather || '') + '</span></div>'
+            + '<div class="body">'
+            + (e.photo ? '<img src="photos/' + esc(e.photo) + '" loading="lazy" alt="">' : '')
+            + '<div class="text">' + esc(e.text || '') + '</div>'
+            + '</div></div>';
+        }).join('');
     }).join('');
+    el.tl.innerHTML = html;
   }
 
   fetch('entries.json?v=' + Date.now())
