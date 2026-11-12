@@ -31,12 +31,10 @@ h1{font-size:2.2rem;letter-spacing:.3em;margin:0 0 .4rem;font-weight:400}
 .heat i.future{opacity:0}
 .heatlegend{text-align:center;color:var(--sub);font-size:.72rem;font-family:system-ui,sans-serif;
 letter-spacing:.08em;margin:0 0 2.6rem}
-.day{display:inline-flex;align-items:center;justify-content:center;gap:.32em;
-font-size:3.2rem;font-weight:700;letter-spacing:.04em;line-height:1.15}
-.day .n{letter-spacing:.02em}
-.day .n b{font-weight:700;font-size:3.4rem;letter-spacing:0}
-.day small{font-size:1rem;color:var(--sub);font-weight:400;letter-spacing:.14em;
-transform:translateY(.18em)}
+.day{display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+font-size:1.05rem;font-weight:400;letter-spacing:.14em;color:var(--ink);line-height:1.1}
+.day b{font-size:4.6rem;font-weight:700;letter-spacing:0;line-height:1;
+font-family:Georgia,"Songti SC",serif}
 .meta{color:var(--sub);font-size:.82rem;font-family:system-ui,sans-serif;letter-spacing:.06em}
 .breathdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);
 animation:b 4s ease-in-out infinite;margin-right:.45em;vertical-align:1px}
@@ -97,7 +95,7 @@ a:hover{color:var(--accent);border-bottom-color:var(--accent)}
     var start = new Date(d.start + 'T00:00:00+08:00');
     var now = new Date(); now.setHours(0,0,0,0);
     var dayN = Math.max(1, Math.round((now - start)/86400000) + 1);
-    el.day.innerHTML = '<span class="n">第 <b>' + dayN + '</b></span><small>天</small>';
+    el.day.innerHTML = '第 <b>' + dayN + '</b> 天';
     el.meta.innerHTML = '<span class="breathdot"></span>自 ' + d.start + ' · 共 ' + entries.length + ' 条记录';
 
     // 连续天数：从最近一条往前数
